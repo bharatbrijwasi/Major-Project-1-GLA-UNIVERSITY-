@@ -1,0 +1,61 @@
+function doGet(e) { 
+  Logger.log( JSON.stringify(e) );
+  var result = 'Ok';
+  if (e.parameter == 'undefined') {
+    result = 'No Parameters';
+  }
+  else {
+    var sheet_id = '1B2Du-Mr5wiwV_1PlI0DHL3UZ--Tx2Y0uiiVqhfAj2OE'; 	// Spreadsheet ID
+    var sheet = SpreadsheetApp.openById(sheet_id).getActiveSheet();
+    var newRow = sheet.getLastRow() + 1;						
+    var rowData = [];
+    var Curr_Date = new Date();
+    rowData[0] = Curr_Date; // Date in column A
+    var Curr_Time = Utilities.formatDate(Curr_Date, "Asia/Kolkata", 'HH:mm:ss');
+    rowData[1] = Curr_Time; // Time in column B
+    for (var param in e.parameter) {
+      Logger.log('In for loop, param=' + param);
+      var value = stripQuotes(e.parameter[param]);
+      Logger.log(param + ':' + e.parameter[param]);
+      switch (param) {
+        case 'temperature':
+          rowData[2] = value; // Temperature in column C
+          result = 'Temperature Written on column C'; 
+          break;
+        case 'humidity':
+          rowData[3] = value; // Humidity in column D
+          result += ' ,Humidity Written on column D'; 
+          break;
+        case 'rainFallValue':
+          rowData[4] = value;
+          result += ' ,rainFall Value written in column E';
+          break;
+        case 'bTemp':
+          rowData[5] = value;
+          result += ', value inserted in column F';
+          break;
+        case 'bHumi':
+          rowData[6] = value;
+          result += ', value inserted in column G';
+          break;
+        case 'pressure':
+          rowData[7] = value;
+          result += ',value inserted in column H';
+          break;
+        case 'altitude':
+          rowData[8] = value;
+          result += ', value inserted in column I';
+          break;  
+        default:
+          result = "unsupported parameter";
+      }
+    }
+    Logger.log(JSON.stringify(rowData));
+    var newRange = sheet.getRange(newRow, 1, 1, rowData.length);
+    newRange.setValues([rowData]);
+  }
+  return ContentService.createTextOutput(result);
+}
+function stripQuotes( value ) {
+  return value.replace(/^["']|['"]$/g, "");
+}
